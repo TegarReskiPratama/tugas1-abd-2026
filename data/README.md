@@ -11,7 +11,7 @@
 | Sumber unduhan | [Kaggle](https://www.kaggle.com/datasets/aashari/indonesian-news-articles-published-at-2017) |
 | Lisensi metadata | CC0: Public Domain menurut [katalog BigScience](https://github.com/bigscience-workshop/data_tooling/issues/351). Artikel tetap diatribusikan ke sumbernya; lisensi katalog tidak otomatis memastikan hak setiap konten media asli. |
 | Format dan file | CSV UTF-8, `mq_news.csv` |
-| Lokasi input | `data/raw/mq_news.csv` |
+| Lokasi input | `data/raw/mq_news.csv` atau `data/raw/Dataset Indonesian News Articles Published at 2017/mq_news.csv` |
 | Unit analisis | Satu baris CSV = satu artikel berita; artikel multibaris tetap satu record |
 | Cakupan dan periode | Artikel berbahasa Indonesia yang diterbitkan pada 2017 menurut sumber; periode aktual diperiksa ketika dijalankan |
 | Skala yang diperkirakan | Sekitar 1,37 GB berdasarkan pemilihan sebelumnya; perubahan ini tidak mengunduh atau membaca CSV lengkap |
@@ -42,7 +42,7 @@ Kolom hasil cleaning mencakup timestamp/tanggal, bulan, hari ISO 1–7, jam null
 1. Buka [halaman Kaggle dataset](https://www.kaggle.com/datasets/aashari/indonesian-news-articles-published-at-2017).
 2. Login jika diminta, klik **Download**, lalu unduh dataset lengkap.
 3. Ekstrak ZIP dengan aplikasi arsip; jangan menggunakan preview atau sampel file.
-4. Letakkan `mq_news.csv` langsung di `data/raw/`.
+4. Letakkan `mq_news.csv` di `data/raw/` atau pertahankan folder hasil ekstraksi `data/raw/Dataset Indonesian News Articles Published at 2017/`. Notebook 01 mendukung kedua lokasi; jika keduanya tersedia, lokasi dalam folder dataset diprioritaskan.
 5. Buka JupyterLab dari akar repository dan jalankan notebook 01, 02, lalu 03. Path otomatis bekerja dari akar atau `notebooks/`.
 6. Periksa metadata dan hasil; laporkan ukuran/jumlah baris/checksum dari hasil eksekusi sendiri.
 
@@ -52,7 +52,11 @@ Alternatif CLI setelah [Kaggle API](https://github.com/Kaggle/kaggle-api) terpas
 kaggle datasets download -d aashari/indonesian-news-articles-published-at-2017 -p data/raw
 ```
 
-Ekstrak arsip yang dihasilkan ke `data/raw/` sampai `data/raw/mq_news.csv` tersedia. Simpan credential Kaggle di luar repository. Kaggle API hanya alat unduhan opsional dan tidak dibutuhkan untuk mengeksekusi notebook setelah CSV tersedia.
+Ekstrak arsip yang dihasilkan ke `data/raw/`. File `mq_news.csv` boleh berada langsung di folder tersebut atau di subfolder `Dataset Indonesian News Articles Published at 2017/`. Simpan credential Kaggle di luar repository. Kaggle API hanya alat unduhan opsional dan tidak dibutuhkan untuk mengeksekusi notebook setelah CSV tersedia.
+
+### Lokasi pada Windows yang Digunakan
+
+Lokasi pengguna adalah `D:\KULIAH\ S1\SEMESTER\7\Analisis Big Data\tugas1-abd-2026\data\raw\Dataset Indonesian News Articles Published at 2017\mq_news.csv`. Buka PowerShell dari akar repository `tugas1-abd-2026` dan mount akar tersebut ke `/home/jovyan/work` pada container. Notebook memakai path relatif di dalam proyek; tidak perlu memindahkan CSV atau memakai path `D:` di dalam Linux container. Path sumber yang benar-benar dipilih dicatat pada metadata profiling.
 
 ## Tanggal dan Kualitas Data
 
