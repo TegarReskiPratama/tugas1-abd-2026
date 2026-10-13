@@ -20,7 +20,7 @@ ALIASES = {
         "timestamp", "tanggal", "tanggal_publikasi", "created_at", "news_date",
     ),
     "title_raw": ("title", "judul", "headline", "news_title"),
-    "content_raw": ("content", "article", "text", "body", "isi", "news_content"),
+    "content_raw": ("content", "content_html", "article", "text", "body", "isi", "news_content"),
     "source_raw": ("source", "sumber", "publisher", "media", "news_source"),
     "url_raw": ("url", "link", "article_url", "news_url", "source_url"),
 }
