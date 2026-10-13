@@ -2,71 +2,74 @@
 
 ## Dataset yang Dipilih
 
-Dataset yang digunakan adalah **Indonesian News Articles Published at 2017**, yang diterbitkan oleh Andi Ashari (`aashari`) di Kaggle. Dataset ini berisi artikel berita berbahasa Indonesia dari situs berita Indonesia dan digunakan untuk eksplorasi serta analisis pola publikasi berita.
+**Indonesian News Articles Published at 2017** dari Andi Ashari (`aashari`) digunakan untuk analisis temporal publikasi dan karakteristik teks artikel berita berbahasa Indonesia.
 
 | Item | Isi |
 |---|---|
-| Nama dataset | Indonesian News Articles Published at 2017 |
-| Penyedia dataset | Andi Ashari (`aashari`) |
-| Sumber unduhan | [Kaggle — Indonesian News Articles Published at 2017](https://www.kaggle.com/datasets/aashari/indonesian-news-articles-published-at-2017) |
-| Lisensi/ketentuan pakai | CC0: Public Domain, berdasarkan [metadata BigScience](https://huggingface.co/datasets/bigscience-data/roots_id_indonesian_news_articles_2017). Sumber dataset tetap dicantumkan sebagai atribusi. |
-| Format | CSV |
-| Nama file | `mq_news.csv` |
-| Lokasi data mentah | `data/raw/mq_news.csv` |
-| Ukuran sementara | Sekitar 1,37 GB menurut catatan pemilihan dataset sebelumnya; ukuran CSV lokal setelah ekstraksi belum diverifikasi. |
-| Jumlah baris | Belum dihitung dari file lokal; akan dicatat pada notebook profiling. |
-| Periode data | Artikel yang diterbitkan pada 2017, sesuai deskripsi dataset; tanggal paling awal dan paling akhir perlu diperiksa pada profiling. |
-| Unit analisis | Satu baris mewakili satu artikel berita. |
-| Cakupan | Artikel berita berbahasa Indonesia dari situs berita Indonesia. |
+| Dataset | Indonesian News Articles Published at 2017 |
+| Penyedia | Andi Ashari (`aashari`) |
+| Sumber unduhan | [Kaggle](https://www.kaggle.com/datasets/aashari/indonesian-news-articles-published-at-2017) |
+| Lisensi metadata | CC0: Public Domain menurut [katalog BigScience](https://github.com/bigscience-workshop/data_tooling/issues/351). Artikel tetap diatribusikan ke sumbernya; lisensi katalog tidak otomatis memastikan hak setiap konten media asli. |
+| Format dan file | CSV UTF-8, `mq_news.csv` |
+| Lokasi input | `data/raw/mq_news.csv` |
+| Unit analisis | Satu baris CSV = satu artikel berita; artikel multibaris tetap satu record |
+| Cakupan dan periode | Artikel berbahasa Indonesia yang diterbitkan pada 2017 menurut sumber; periode aktual diperiksa ketika dijalankan |
+| Skala yang diperkirakan | Sekitar 1,37 GB berdasarkan pemilihan sebelumnya; perubahan ini tidak mengunduh atau membaca CSV lengkap |
+| Bukti skala aktual | Notebook 01 menyimpan `raw_size_bytes`, `rows_raw`, `size_requirement_met`, dan SHA-256 pada `output/profiling_summary.json` |
+| Syarat tugas | CSV setelah ekstraksi >= 500.000.000 byte **atau** jumlah record > 1.000.000; notebook berhenti bila keduanya tidak terpenuhi |
 
-Ukuran dan jumlah baris aktual harus diperiksa dari `mq_news.csv` setelah ekstraksi. Syarat tugas adalah **ukuran minimal 500 MB atau lebih dari 1.000.000 baris**. Angka ukuran sementara di atas bukan hasil pengukuran file lokal dan jumlah baris belum dinyatakan memenuhi batas tugas.
+Angka pada laporan hasil baru dapat dinyatakan terverifikasi setelah notebook dijalankan. Ukuran Parquet bisa jauh lebih kecil karena kompresi; penilaian skala tetap menggunakan CSV asli. Jangan menduplikasi baris atau memperbesar file secara artifisial untuk memenuhi syarat.
 
-## Informasi yang Tersedia
+## Informasi dan Skema Analisis
 
-Deskripsi sumber menyebutkan informasi berikut. Nama kolom, tipe data, dan kelengkapan setiap atribut harus dikonfirmasi dari header CSV pada `notebooks/01_data_profiling.ipynb`.
+Metadata sumber menyebut tanggal publikasi, judul, isi, dan sumber. Header asli dicatat saat eksekusi; pipeline mengenali variasi umum tanpa mengasumsikan nama kolom yang belum dilihat. Jika lebih dari satu header cocok dengan atribut yang sama, notebook berhenti dan meminta pilihan eksplisit melalui `COLUMN_OVERRIDES`.
 
-| Informasi | Keterangan |
-|---|---|
-| Tanggal publikasi | Waktu atau tanggal artikel diterbitkan. |
-| Judul | Judul artikel berita. |
-| Isi artikel | Teks artikel berita. |
-| Sumber | Sumber artikel berita. |
+| Kolom kanonis Parquet awal | Kolom CSV yang dikenali, antara lain | Aturan |
+|---|---|---|
+| `row_id` | Dibuat dari urutan record CSV | Untuk menelusuri baris ke input asli |
+| `published_raw` | `date`, `published_date`, `publish_date`, `published_at`, `timestamp`, `tanggal` | Wajib; nilai asli dipertahankan sebelum parsing |
+| `title_raw` | `title`, `judul`, `headline` | Wajib |
+| `content_raw` | `content`, `article`, `text`, `body`, `isi` | Wajib |
+| `source_raw` | `source`, `sumber`, `publisher`, `media` | Sumber atau URL harus tersedia sebagai kolom input |
+| `url_raw` | `url`, `link`, `article_url`, `news_url` | Opsional jika kolom sumber tersedia |
 
-Rujukan deskripsi dan lisensi: [metadata dataset dalam katalog BigScience](https://github.com/bigscience-workshop/data_tooling/issues/351). File yang digunakan dalam tugas tetap CSV dari Kaggle.
+Kolom tambahan di CSV tidak digunakan untuk analisis, tetapi nama/tipe aslinya dicatat dan CSV asli tetap ada. Missing markers yang dibaca sebagai null: string kosong, `NULL`, `null`, `None`, dan `NaN`. Spasi saja ditangani saat normalisasi. Reader tidak melewati CSV rusak atau mengganti encoding secara diam-diam.
+
+Kolom hasil cleaning mencakup timestamp/tanggal, bulan, hari ISO 1–7, jam nullable, flag ketersediaan jam, label/domain sumber, flag sumber imputasi, judul, isi, jumlah kata/karakter, serta flag outlier. Teks raw tersedia pada `dataset_raw.parquet` dan `dataset_normalised.parquet`.
 
 ## Cara Memperoleh Data
 
-1. Buka [halaman dataset di Kaggle](https://www.kaggle.com/datasets/aashari/indonesian-news-articles-published-at-2017).
-2. Masuk ke akun Kaggle apabila diminta, lalu klik **Download**.
-3. Ekstrak arsip hasil unduhan.
-4. Letakkan file `mq_news.csv` di `data/raw/` sehingga lokasi akhirnya adalah `data/raw/mq_news.csv`.
-5. Pertahankan isi CSV asli. Lakukan pembersihan melalui notebook dan simpan hasilnya di `data/processed/`.
-6. Catat ukuran file, jumlah baris, nama kolom, rentang tanggal, serta checksum SHA-256 pada tahap profiling untuk dokumentasi dan pemeriksaan reproduktivitas.
+1. Buka [halaman Kaggle dataset](https://www.kaggle.com/datasets/aashari/indonesian-news-articles-published-at-2017).
+2. Login jika diminta, klik **Download**, lalu unduh dataset lengkap.
+3. Ekstrak ZIP dengan aplikasi arsip; jangan menggunakan preview atau sampel file.
+4. Letakkan `mq_news.csv` langsung di `data/raw/`.
+5. Buka JupyterLab dari akar repository dan jalankan notebook 01, 02, lalu 03. Path otomatis bekerja dari akar atau `notebooks/`.
+6. Periksa metadata dan hasil; laporkan ukuran/jumlah baris/checksum dari hasil eksekusi sendiri.
 
-## Mengarahkan Notebook ke Dataset
+Alternatif CLI setelah [Kaggle API](https://github.com/Kaggle/kaggle-api) terpasang dan autentikasi akun dikonfigurasi:
 
-Jika notebook dijalankan dari folder `notebooks/`, gunakan:
-
-```python
-DATA_PATH = "../data/raw/mq_news.csv"
+```bash
+kaggle datasets download -d aashari/indonesian-news-articles-published-at-2017 -p data/raw
 ```
 
-Jika direktori kerja Jupyter berada di akar repository, gunakan:
+Ekstrak arsip yang dihasilkan ke `data/raw/` sampai `data/raw/mq_news.csv` tersedia. Simpan credential Kaggle di luar repository. Kaggle API hanya alat unduhan opsional dan tidak dibutuhkan untuk mengeksekusi notebook setelah CSV tersedia.
 
-```python
-DATA_PATH = "data/raw/mq_news.csv"
-```
+## Tanggal dan Kualitas Data
 
-Path relatif mengikuti direktori kerja saat notebook dijalankan.
+Parser menerima ISO, timestamp dengan detik/pecahan detik, tanggal `YYYY-MM-DD`, `YYYY/MM/DD`, `YYYYMMDD`, serta format day-first `DD/MM/YYYY` dan `DD-MM-YYYY` yang didukung secara eksplisit di `src/dataset.py`. Sufiks WIB dapat diproses. Format yang tidak cocok menjadi null dan dikarantina bersama nilai raw; tidak ada tebakan month-first otomatis. Offset eksplisit dikonversi ke Asia/Jakarta, sedangkan timestamp tanpa offset diasumsikan WIB untuk analisis jam. Tanggal tanpa jam tidak dianggap observasi pukul 00.00.
 
-## Aturan Penyimpanan
+Cleaning mempertahankan teks asli yang bukan HTML, mengarantina judul/isi kosong dan tanggal tidak valid/di luar 2017, menormalisasi label/domain sumber, serta menghapus salinan berdasarkan kunci `(source, published_at, title_key, content)`. Artikel panjang tetap disimpan dengan flag IQR. Jika lebih dari 5% input masuk karantina, format/pemetaan harus diperiksa sebelum lanjut.
 
-- `data/raw/mq_news.csv` merupakan data asli dan tidak boleh ditimpa oleh hasil cleaning.
-- Jangan commit dataset mentah atau hasil olahan berukuran besar ke GitHub.
-- Folder `data/raw/` dan `data/processed/` sudah diabaikan oleh `.gitignore`; berkas data tetap disimpan secara lokal.
-- Simpan hasil transformasi yang dapat direproduksi pada `data/processed/`.
-- Cantumkan sumber dan petunjuk unduh dalam README ini agar dataset dapat diperoleh kembali.
+Keterbatasan: coverage pengumpulan dapat berbeda antarhari/sumber; artikel tidak sama dengan peristiwa; artikel dan label sumber tidak menjamin representasi seluruh media Indonesia. Tidak ada koordinat terverifikasi untuk analisis spasial.
+
+## Aturan Penyimpanan dan Reproduktivitas
+
+- Pertahankan CSV asli; cleaning tidak menimpa input.
+- Jangan commit CSV, arsip, Parquet, credential, atau HTML besar.
+- `data/raw/`, `data/processed/`, dan `output/figures/` diabaikan oleh Git kecuali `.gitkeep`.
+- Notebook 01 menghasilkan checksum CSV dan Parquet awal; notebook 02 memverifikasi input dan mencatat checksum hasil bersih; notebook 03 memverifikasi checksum hasil tersebut sebelum EDA.
+- Laporan kecil di `output/` dapat ditambahkan secara eksplisit setelah diverifikasi, sesuai perintah README utama.
 
 ## AI Disclosure Statement
 
-ChatGPT membantu penyusunan dokumentasi dataset ini. Identitas dataset mengacu pada riwayat pemilihan dataset, sedangkan deskripsi dan informasi lisensi diperiksa melalui metadata sumber yang ditautkan. File CSV lokal belum diakses; ukuran aktual, jumlah baris, header kolom, rentang tanggal, dan checksum masih perlu diverifikasi pada tahap profiling.
+ChatGPT/Codex membantu dokumentasi dan implementasi pipeline mengikuti template UMM-GURU. Deskripsi serta lisensi metadata mengacu pada sumber yang ditautkan. CSV lengkap dan notebook tidak dijalankan dalam perubahan ini; bukti ukuran, jumlah baris, kualitas, visualisasi, serta insight menunggu eksekusi dan pemeriksaan mahasiswa.
