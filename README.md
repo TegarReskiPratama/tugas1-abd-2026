@@ -7,6 +7,8 @@ Proyek ini menganalisis pola waktu publikasi dan karakteristik teks pada **Indon
 
 **Status Milestone 3:** notebook mengikuti empat bagian template yang diberikan, telah dijalankan pada seluruh **455.360 artikel bersih**, dan menyimpan **10 grafik Plotly interaktif serta 9 insight berbasis data**. Artefak Milestone 1 dan 2 yang sudah tersedia diperiksa melalui metadata dan checksum; kedua notebook tersebut tidak dijalankan ulang dalam perubahan ini. CSV asli berukuran **1.371.437.745 byte** dan memuat **455.678 artikel**, sehingga memenuhi syarat ukuran dataset. Docker image belum dibangun atau diuji dalam perubahan ini.
 
+Catatan eksekusi ulang tersedia pada [`output/milestone3_execution.json`](output/milestone3_execution.json), termasuk waktu eksekusi WIB, checksum notebook/data, versi runtime, dan hasil kedua validator. Run ulang menghasilkan angka analisis yang sama dengan eksekusi sebelumnya.
+
 ## Milestone
 
 | Tahap | Target | Implementasi dan bukti |

@@ -1,0 +1,44 @@
+{
+  "notebook": "notebooks/03_eda_and_insights.ipynb",
+  "started_at": "2026-10-28T19:01:08+07:00",
+  "finished_at": "2026-10-28T19:01:36+07:00",
+  "timezone": "Asia/Jakarta",
+  "status": "passed",
+  "kernel": "fresh Python kernel",
+  "rows_analysed": 455360,
+  "visualisations": 10,
+  "insights": 9,
+  "clean_parquet_sha256": "ba3c4d94dc63a31d19d102127fbb993e80d097959600bb3cc2aca33a2f4fcea6",
+  "notebook_sha256": "7b415725f558220be3a0a66de4a840b7e639e889cf5ba25b0820ea52c1e30a49",
+  "analysis_matches_previous_run": true,
+  "validation": {
+    "daily_total_matches": true,
+    "monthly_total_matches": true,
+    "source_total_matches": true,
+    "histogram_total_matches": true,
+    "weekday_total_matches": true,
+    "monthly_length_total_matches": true,
+    "hourly_total_matches": true,
+    "calendar_complete": true,
+    "rolling_mean_matches": true,
+    "html_files_exist": true
+  },
+  "checks": [
+    {
+      "command": "python scripts/validate_notebooks.py",
+      "status": "passed"
+    },
+    {
+      "command": "python scripts/validate_milestone3.py",
+      "status": "passed"
+    }
+  ],
+  "runtime": {
+    "python": "3.12.10",
+    "polars": "1.31.0",
+    "duckdb": "1.3.2",
+    "plotly": "6.2.0",
+    "pandas": "2.3.0",
+    "numpy": "2.2.6"
+  }
+}
