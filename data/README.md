@@ -13,12 +13,15 @@
 | Format dan file | CSV UTF-8, `mq_news.csv` |
 | Lokasi input | `data/raw/mq_news.csv` atau `data/raw/Dataset Indonesian News Articles Published at 2017/mq_news.csv` |
 | Unit analisis | Satu baris CSV = satu artikel berita; artikel multibaris tetap satu record |
-| Cakupan dan periode | Artikel berbahasa Indonesia yang diterbitkan pada 2017 menurut sumber; periode aktual diperiksa ketika dijalankan |
-| Skala yang diperkirakan | Sekitar 1,37 GB berdasarkan pemilihan sebelumnya; perubahan ini tidak mengunduh atau membaca CSV lengkap |
+| Cakupan dan periode | Artikel berbahasa Indonesia; data bersih mencakup 1 Januari–31 Desember 2017 dan memiliki artikel pada seluruh 365 hari |
+| Skala aktual | CSV asli 1.371.437.745 byte (sekitar 1,37 GB), 455.678 record artikel; memenuhi syarat ukuran >= 500 MB |
 | Bukti skala aktual | Notebook 01 menyimpan `raw_size_bytes`, `rows_raw`, `size_requirement_met`, dan SHA-256 pada `output/profiling_summary.json` |
+| Hasil cleaning | 455.360 artikel bersih, 52 artikel dikarantina karena isi kosong, dan 266 salinan duplikat dihapus |
 | Syarat tugas | CSV setelah ekstraksi >= 500.000.000 byte **atau** jumlah record > 1.000.000; notebook berhenti bila keduanya tidak terpenuhi |
 
-Angka pada laporan hasil baru dapat dinyatakan terverifikasi setelah notebook dijalankan. Ukuran Parquet bisa jauh lebih kecil karena kompresi; penilaian skala tetap menggunakan CSV asli. Jangan menduplikasi baris atau memperbesar file secara artifisial untuk memenuhi syarat.
+Metadata hasil Milestone 1 dan 2 yang telah tersedia diperiksa terhadap ukuran CSV serta checksum CSV dan Parquet. Notebook Milestone 3 dijalankan pada seluruh 455.360 artikel bersih dalam perubahan ini; notebook 01 dan 02 tidak dijalankan ulang. Ukuran Parquet bisa jauh lebih kecil karena kompresi; penilaian skala tetap menggunakan CSV asli. Jumlah record berada di bawah satu juta, tetapi ukuran CSV telah memenuhi syarat tugas.
+
+SHA-256 CSV asli: `32f0839ab07ada289c23bfff3508c8753037ef6d345e848c3c59558db531a953`. SHA-256 Parquet bersih: `ba3c4d94dc63a31d19d102127fbb993e80d097959600bb3cc2aca33a2f4fcea6`.
 
 ## Informasi dan Skema Analisis
 
@@ -29,7 +32,7 @@ Metadata sumber menyebut tanggal publikasi, judul, isi, dan sumber. Header asli 
 | `row_id` | Dibuat dari urutan record CSV | Untuk menelusuri baris ke input asli |
 | `published_raw` | `date`, `published_date`, `publish_date`, `published_at`, `timestamp`, `tanggal` | Wajib; nilai asli dipertahankan sebelum parsing |
 | `title_raw` | `title`, `judul`, `headline` | Wajib |
-| `content_raw` | `content`, `article`, `text`, `body`, `isi` | Wajib |
+| `content_raw` | `content`, `content_html`, `article`, `text`, `body`, `isi` | Wajib; input aktual memakai `content_html` |
 | `source_raw` | `source`, `sumber`, `publisher`, `media` | Sumber atau URL harus tersedia sebagai kolom input |
 | `url_raw` | `url`, `link`, `article_url`, `news_url` | Opsional jika kolom sumber tersedia |
 
@@ -69,11 +72,12 @@ Keterbatasan: coverage pengumpulan dapat berbeda antarhari/sumber; artikel tidak
 ## Aturan Penyimpanan dan Reproduktivitas
 
 - Pertahankan CSV asli; cleaning tidak menimpa input.
-- Jangan commit CSV, arsip, Parquet, credential, atau HTML besar.
+- Jangan commit CSV mentah, arsip, Parquet, credential, atau HTML besar.
 - `data/raw/`, `data/processed/`, dan `output/figures/` diabaikan oleh Git kecuali `.gitkeep`.
 - Notebook 01 menghasilkan checksum CSV dan Parquet awal; notebook 02 memverifikasi input dan mencatat checksum hasil bersih; notebook 03 memverifikasi checksum hasil tersebut sebelum EDA.
-- Laporan kecil di `output/` dapat ditambahkan secara eksplisit setelah diverifikasi, sesuai perintah README utama.
+- Ringkasan JSON dan tabel agregasi EDA kecil di `output/` ditambahkan secara eksplisit sebagai bukti hasil, sesuai perintah README utama.
+- Notebook 03 menyimpan 10 grafik dengan output MIME Plotly interaktif dan 9 insight. HTML pada `output/figures/` dibuat ulang saat notebook dijalankan dan tetap diabaikan Git.
 
 ## AI Disclosure Statement
 
-ChatGPT/Codex membantu dokumentasi dan implementasi pipeline mengikuti template UMM-GURU. Deskripsi serta lisensi metadata mengacu pada sumber yang ditautkan. CSV lengkap dan notebook tidak dijalankan dalam perubahan ini; bukti ukuran, jumlah baris, kualitas, visualisasi, serta insight menunggu eksekusi dan pemeriksaan mahasiswa.
+ChatGPT/Codex membantu adaptasi template UMM-GURU, implementasi EDA, dokumentasi, dan pemeriksaan hasil. Dalam perubahan ini ukuran serta checksum CSV dan artefak Milestone 1/2 diperiksa, lalu notebook Milestone 3 dijalankan pada seluruh data bersih. Sepuluh visualisasi dan sembilan insight dihitung dari hasil eksekusi. Deskripsi serta lisensi metadata mengacu pada sumber yang ditautkan. Mahasiswa tetap bertanggung jawab memahami kode, asumsi, dan hasil analisis; Docker belum dibangun atau diuji dalam perubahan ini.

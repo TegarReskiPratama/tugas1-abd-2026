@@ -5,15 +5,15 @@ Mata kuliah Analisis Big Data, Informatika, Universitas Muhammadiyah Malang.
 
 Proyek ini menganalisis pola waktu publikasi dan karakteristik teks pada **Indonesian News Articles Published at 2017** dari Kaggle. Struktur, nama notebook, milestone, dan aturan teknis mengikuti [template UMM-GURU](https://github.com/UMM-GURU/tugas1-abd-2026).
 
-**Status penyiapan:** tiga notebook telah diisi, tetapi belum dijalankan dalam perubahan ini sesuai permintaan. Pemeriksaan yang dilakukan hanya validasi statis. Ukuran lokal, jumlah artikel, hasil cleaning, grafik, dan insight numerik akan diverifikasi/dihasilkan ketika notebook dijalankan. Docker image juga belum dibangun dalam perubahan ini.
+**Status Milestone 3:** notebook mengikuti empat bagian template yang diberikan, telah dijalankan pada seluruh **455.360 artikel bersih**, dan menyimpan **10 grafik Plotly interaktif serta 9 insight berbasis data**. Artefak Milestone 1 dan 2 yang sudah tersedia diperiksa melalui metadata dan checksum; kedua notebook tersebut tidak dijalankan ulang dalam perubahan ini. CSV asli berukuran **1.371.437.745 byte** dan memuat **455.678 artikel**, sehingga memenuhi syarat ukuran dataset. Docker image belum dibangun atau diuji dalam perubahan ini.
 
 ## Milestone
 
-| Tahap | Target | Implementasi dan bukti setelah dijalankan |
+| Tahap | Target | Implementasi dan bukti |
 |---|---|---|
 | Milestone 1 | Pertemuan 3 | Dokumentasi `data/README.md`, notebook `01_data_profiling.ipynb`, pemeriksaan CSV >= 500 MB atau > 1 juta baris, SHA-256, profil Polars dan DuckDB, salinan Parquet |
 | Milestone 2 | Pertemuan 5 | Notebook `02_data_cleaning.ipynb`, cleaning Polars, `SUMMARIZE` sebelum/sesudah, karantina, deduplikasi, flag IQR, dan validasi SQL |
-| Milestone 3 | Pertemuan 8 | Notebook `03_eda_and_insights.ipynb`, analisis temporal, 8 grafik interaktif Plotly, dan 7 insight yang dihitung dari seluruh korpus |
+| Milestone 3 | Pertemuan 8 | Notebook `03_eda_and_insights.ipynb` dengan output eksekusi, analisis temporal/windowing, 10 grafik interaktif Plotly, 9 insight, tabel EDA, dan ringkasan hasil |
 | Final | Pertemuan 10 | Dockerfile, dependency yang dipatok, dokumentasi, pemeriksaan hasil, serta riwayat commit tiap milestone |
 
 ## Pertanyaan Analisis
@@ -23,6 +23,7 @@ Proyek ini menganalisis pola waktu publikasi dan karakteristik teks pada **Indon
 3. Seberapa terkonsentrasi artikel pada sumber tertentu?
 4. Bagaimana distribusi dan perubahan panjang artikel?
 5. Berapa banyak artikel dikarantina, terduplikasi, dan ditandai outlier?
+6. Bagaimana hubungan volume harian, rata-rata panjang artikel, dan proporsi outlier, serta perbedaan karakteristik antarsumber?
 
 Unit analisis adalah satu artikel, bukan satu peristiwa. Analisis menggambarkan arsip yang terkumpul dan tidak menganggap dataset sebagai sensus seluruh berita Indonesia. Dataset tidak menyediakan koordinat yang terverifikasi, sehingga pendekatan yang dipilih adalah **analisis temporal**.
 
@@ -40,23 +41,26 @@ Unit analisis adalah satu artikel, bukan satu peristiwa. Analisis menggambarkan 
 │   ├── 02_data_cleaning.ipynb
 │   └── 03_eda_and_insights.ipynb
 ├── output/
-│   ├── figures/                         # 8 berkas HTML interaktif setelah run
+│   ├── figures/                         # 10 HTML interaktif; dibuat ulang saat run
 │   ├── profiling_summary.json
 │   ├── cleaning_summary.json
 │   ├── eda_summary.json
+│   ├── eda_*.csv                        # tabel agregasi kecil hasil EDA
 │   └── insights.md
 ├── src/
 │   ├── __init__.py
 │   ├── common.py
 │   └── dataset.py
-├── scripts/validate_notebooks.py
+├── scripts/
+│   ├── validate_notebooks.py
+│   └── validate_milestone3.py
 ├── .dockerignore
 ├── Dockerfile
 ├── requirements.txt
 └── README.md
 ```
 
-Berkas pada `output/` selain `.gitkeep` dihasilkan saat eksekusi. CSV asli, Parquet, dan HTML besar tidak disertakan dalam commit. Notebook mengadaptasi dua template yang diberikan pengguna; logika dataset yang digunakan berpusat di `src/dataset.py`.
+Berkas pada `output/` selain `.gitkeep` dihasilkan saat eksekusi. Notebook dengan output grafik interaktif, ringkasan JSON, tabel agregasi EDA kecil, dan laporan insight disertakan sebagai bukti hasil. CSV asli, Parquet, dan HTML besar tidak disertakan dalam commit. Notebook mengadaptasi template yang diberikan pengguna; logika dataset yang digunakan berpusat di `src/dataset.py`.
 
 ## Dataset dan Penanganan Data
 
@@ -130,11 +134,28 @@ Jalankan **01 → 02 → 03**, setiap cell dari atas ke bawah, dengan kernel bar
 |---|---|
 | 01 | `dataset_raw.parquet`, `profiling_summary.json`, `profile_raw.csv`, `nulls_raw.csv` |
 | 02 | `dataset_normalised.parquet`, `news_rejected.parquet`, `news_duplicates.parquet`, `dataset_bersih.parquet`, `cleaning_summary.json`, profil sebelum/sesudah, dan alasan karantina |
-| 03 | Tabel EDA, `eda_summary.json`, `insights.md`, dan 8 HTML pada `output/figures/` |
+| 03 | Tabel EDA, `eda_summary.json`, `insights.md`, 10 output grafik interaktif pada notebook, dan 10 HTML pada `output/figures/` |
 
-Delapan visualisasi: tren harian + moving average, volume bulanan, intensitas per hari minggu, komposisi sumber, heatmap hari × jam, distribusi jumlah kata, tren lima sumber terbesar, serta rata-rata/median panjang artikel per bulan. HTML menyertakan Plotly JavaScript agar dapat dibuka tanpa koneksi internet. Notebook menampilkan grafik yang sama.
+Notebook Milestone 3 mempertahankan empat bagian template: **inisialisasi dan data bersih**, **analisis temporal dan window functions**, **visualisasi interaktif**, dan **rumusan insight**. Analisis temporal memakai kalender lengkap 2017 dan rata-rata bergerak tujuh hari melalui window function DuckDB. Kalender lengkap memastikan hari tanpa artikel tetap masuk perhitungan intensitas.
 
-Tujuh insight mencakup volume bulan, pola hari, konsentrasi sumber, jam publikasi atau keterbatasannya, panjang teks/outlier, kualitas data, dan cakupan kalender. Seluruh angka dihitung dari data hasil eksekusi; tidak ada hasil numerik yang dikarang atau diambil dari sampel. Grafik jam diberi anotasi jika data hanya memuat tanggal.
+Enam visualisasi inti memenuhi kategori template, lalu empat grafik tambahan memperinci pola waktu:
+
+| No. | Visualisasi | Hasil HTML lokal |
+|---|---|---|
+| 1 | Tren harian dan moving average tujuh hari, dengan range slider | `01_daily_trend.html` |
+| 2 | Histogram jumlah kata dan ekor distribusi | `02_article_length_distribution.html` |
+| 3 | Heatmap korelasi volume harian, rata-rata jumlah kata, dan persentase outlier | `03_daily_correlation.html` |
+| 4 | Komposisi artikel menurut sumber | `04_source_composition.html` |
+| 5 | Heatmap hari × jam, dinormalisasi terhadap jumlah hari kalender | `05_weekday_hour_heatmap.html` |
+| 6 | Bubble chart antarsumber: volume, rata-rata jumlah kata, dan persentase outlier | `06_source_multidimensional.html` |
+| 7 | Volume publikasi bulanan | `07_monthly_volume.html` |
+| 8 | Rata-rata artikel per hari dalam minggu | `08_weekday_pattern.html` |
+| 9 | Tren bulanan lima sumber terbesar | `09_source_monthly_trend.html` |
+| 10 | Rata-rata dan median panjang artikel per bulan | `10_monthly_article_length.html` |
+
+HTML disimpan di `output/figures/` dan menyertakan Plotly JavaScript agar dapat dibuka tanpa koneksi internet setelah dibuat. Notebook menyimpan grafik yang sama dalam format MIME Plotly interaktif. Buka notebook di JupyterLab untuk berinteraksi dengan grafik; file HTML dibuat ulang dengan menjalankan notebook.
+
+Sembilan insight mencakup volume bulan, pola hari, konsentrasi sumber, jam publikasi atau keterbatasannya, panjang teks/outlier, kualitas data, cakupan kalender, korelasi harian, dan rekomendasi praktis. Angka dihitung dari seluruh korpus bersih atau agregasinya, tanpa sampling. Korelasi menggambarkan hubungan pada tingkat hari dan tidak membuktikan sebab-akibat atau hubungan pada tingkat artikel. Grafik jam diberi anotasi jika data hanya memuat tanggal.
 
 Jika SHA-256 berbeda, ulangi notebook sebelumnya agar data dan metadata konsisten. Jika header ambigu, cell awal notebook 01 mencetak kandidat; pilih nama kolom yang benar dalam `COLUMN_OVERRIDES`. Jika tanggal gagal parse, periksa contoh di `news_rejected.parquet` dan tambahkan format yang terverifikasi ke `published_datetime` sebelum menjalankan ulang 02.
 
@@ -142,18 +163,19 @@ Jika SHA-256 berbeda, ulangi notebook sebelumnya agar data dan metadata konsiste
 
 ```bash
 python scripts/validate_notebooks.py
+python scripts/validate_milestone3.py
 ```
 
-Validator memeriksa JSON/schema notebook, sintaks semua code cell dan modul, import lokal, serta placeholder. **Validator tidak mengeksekusi notebook atau membaca dataset.** Tambahkan `--require-unexecuted` jika ingin memastikan seluruh execution count/output masih kosong. GitHub Actions juga hanya menjalankan validasi statis.
+Validator pertama memeriksa JSON/schema notebook, sintaks semua code cell dan modul, import lokal, serta placeholder. Validator Milestone 3 memeriksa bukti eksekusi tersimpan, 10 output Plotly, 9 insight, rekonsiliasi tabel agregasi, dan menghitung ulang moving average serta korelasi dari CSV harian menggunakan pustaka standar Python. **Kedua validator tidak mengeksekusi notebook atau membaca dataset besar.** HTML lokal tidak diperlukan untuk pemeriksaan CI. Eksekusi notebook 03 pada dataset penuh dilakukan terpisah. GitHub Actions dikonfigurasi menjalankan kedua validator; status pemeriksaan remote harus dilihat pada tab Actions setelah push.
 
-Perubahan dikelompokkan dalam tiga commit berurutan: profiling dan dokumentasi dataset (M1), cleaning serta validasi kualitas (M2), kemudian EDA/insight dan environment akhir (M3). Commit tersebut mencatat tahapan penyiapan kode; tidak mengklaim bahwa milestone sudah dijalankan pada tanggal pertemuan.
+Riwayat Git mencatat implementasi profiling, cleaning, dan EDA. Pembaruan Milestone 3 melengkapi kategori visualisasi serta insight sesuai template dan menyimpan bukti eksekusi pada seluruh data bersih. Riwayat commit tidak menyatakan bahwa pekerjaan dilakukan pada tanggal pertemuan tertentu.
 
 Setelah menjalankan dan memeriksa hasil secara lokal, simpan notebook dengan output dan tambahkan laporan kecil sebagai bukti hasil:
 
 ```bash
-git add notebooks/
-git add -f output/profiling_summary.json output/cleaning_summary.json output/eda_summary.json output/insights.md
-git commit -m "results: verify profiling cleaning and EDA on complete dataset"
+git add notebooks/03_eda_and_insights.ipynb README.md data/README.md output/insights.md
+git add -f output/profiling_summary.json output/cleaning_summary.json output/eda_summary.json 'output/eda_*.csv'
+git commit -m "feat(milestone-3): complete template EDA and verified insights"
 git push origin main
 ```
 
@@ -164,9 +186,9 @@ Template berasal dari UMM-GURU dan digunakan dengan atribusi di atas. Penggunaan
 ## AI Disclosure Statement
 
 - **Alat:** ChatGPT / Codex.
-- **Bantuan:** adaptasi template, implementasi profiling/cleaning/EDA, dokumentasi, konfigurasi environment, serta pemeriksaan statis.
-- **Verifikasi dalam perubahan ini:** pemeriksaan struktur template, sumber metadata dataset dan dokumentasi resmi, validitas JSON, sintaks Python, import lokal, serta kondisi seluruh notebook belum dieksekusi.
-- **Verifikasi hasil yang masih diperlukan oleh mahasiswa:** unduh CSV lengkap, jalankan notebook berurutan, periksa syarat ukuran, aturan kualitas, grafik, insight, dan kemampuan build/run Docker.
+- **Bantuan:** adaptasi template Milestone 3, implementasi EDA dan visualisasi, perumusan insight dari hasil perhitungan, dokumentasi, serta eksekusi dan pemeriksaan hasil.
+- **Verifikasi dalam perubahan ini:** ukuran dan checksum CSV, konsistensi checksum artefak profiling/cleaning yang sudah tersedia, serta eksekusi notebook 03 pada seluruh 455.360 artikel bersih. Notebook dan laporan menyimpan angka hasil perhitungan beserta keterbatasan analisis.
+- **Tanggung jawab mahasiswa:** memahami dan memeriksa kode, grafik, insight, serta asumsi analisis; mampu menjalankan ulang pipeline dari CSV asli. Build/run Docker belum diuji dalam perubahan ini.
 
 ## Referensi Teknis
 

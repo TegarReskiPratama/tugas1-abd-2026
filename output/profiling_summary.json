@@ -1,0 +1,60 @@
+{
+  "dataset_url": "https://www.kaggle.com/datasets/aashari/indonesian-news-articles-published-at-2017",
+  "raw_csv": "data/raw/Dataset Indonesian News Articles Published at 2017/mq_news.csv",
+  "raw_size_bytes": 1371437745,
+  "rows_raw": 455678,
+  "csv_columns": {
+    "": "String",
+    "item_id": "String",
+    "url": "String",
+    "title": "String",
+    "content_html": "String",
+    "published_at": "String",
+    "source": "String"
+  },
+  "column_mapping": {
+    "published_raw": "published_at",
+    "title_raw": "title",
+    "content_raw": "content_html",
+    "source_raw": "source",
+    "url_raw": "url"
+  },
+  "size_requirement_met": true,
+  "raw_csv_sha256": "32f0839ab07ada289c23bfff3508c8753037ef6d345e848c3c59558db531a953",
+  "raw_parquet_sha256": "eb3ed0732fd0a001f62b8fcea4909bff1a7259ff5b90e07265433f9c5f8b29e6",
+  "null_counts": [
+    {
+      "kolom": "published_raw",
+      "jumlah_null": 0,
+      "persen_null": 0.0
+    },
+    {
+      "kolom": "title_raw",
+      "jumlah_null": 0,
+      "persen_null": 0.0
+    },
+    {
+      "kolom": "content_raw",
+      "jumlah_null": 0,
+      "persen_null": 0.0
+    },
+    {
+      "kolom": "source_raw",
+      "jumlah_null": 0,
+      "persen_null": 0.0
+    },
+    {
+      "kolom": "url_raw",
+      "jumlah_null": 0,
+      "persen_null": 0.0
+    }
+  ],
+  "blank_counts": {
+    "published_raw": 0,
+    "title_raw": 0,
+    "content_raw": 1,
+    "source_raw": 0,
+    "url_raw": 0
+  },
+  "polars_version": "1.44.2"
+}
